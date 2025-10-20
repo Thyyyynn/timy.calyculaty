@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Time Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #f5f5f7;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 0;
+            padding-top: 20px;
+            padding-bottom: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 500px;
+            margin: 0 16px;
+            padding: 24px;
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: #1d1d1f;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid #e5e5e7;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 14px 8px;
+            background: none;
+            border: none;
+            color: #86868b;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            min-height: 44px;
+        }
+
+        .tab:hover {
+            color: #007aff;
+        }
+
+        .tab.active {
+            color: #007aff;
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #007aff;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #86868b;
+            font-size: 12px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .time-inputs {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        input[type="number"], input[type="time"], select {
+            padding: 14px;
+            border: 1px solid #d2d2d7;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #ffffff;
+            min-height: 44px;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        input[type="number"]:focus, input[type="time"]:focus, select:focus {
+            outline: none;
+            border-color: #007aff;
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+        }
+
+        input[type="number"] {
+            flex: 1;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .time-unit {
+            color: #86868b;
+            font-size: 13px;
+            min-width: 45px;
+            text-align: center;
+        }
+
+        .operator {
+            display: flex;
+            justify-content: center;
+            margin: 24px 0;
+            gap: 16px;
+        }
+
+        .operator button {
+            width: 60px;
+            height: 44px;
+            background: #f2f2f7;
+            border: none;
+            border-radius: 22px;
+            color: #86868b;
+            font-size: 20px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .operator button:hover {
+            background: #007aff;
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .operator button.active {
+            background: #007aff;
+            color: white;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            padding: 16px;
+            background: #007aff;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 24px;
+            min-height: 50px;
+        }
+
+        .calculate-btn:hover {
+            background: #0056cc;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+        }
+
+        .calculate-btn:active {
+            transform: translateY(0);
+        }
+
+        .result {
+            margin-top: 24px;
+            padding: 20px;
+            background: #f2f2f7;
+            border-radius: 10px;
+            border-left: 3px solid #007aff;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .result-label {
+            color: #86868b;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .result-value {
+            color: #1d1d1f;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .converter-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .converter-item {
+            padding: 16px;
+            background: #f2f2f7;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .converter-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: #007aff;
+        }
+
+        .converter-unit {
+            font-size: 11px;
+            color: #86868b;
+            margin-top: 4px;
+        }
+
+        .time-difference-inputs {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        .duration-result {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+
+        .duration-item {
+            text-align: center;
+        }
+
+        .duration-value {
+            font-size: 28px;
+            font-weight: 600;
+            color: #007aff;
+        }
+
+        .duration-label {
+            font-size: 11px;
+            color: #86868b;
+            text-transform: uppercase;
+            margin-top: 4px;
+        }
+
+        select {
+            width: 100%;
+            cursor: pointer;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 12px center;
+            background-repeat: no-repeat;
+            background-size: 16px;
+            padding-right: 40px;
+        }
+
+        /* Mobile-specific adjustments */
+        @media (max-width: 480px) {
+            .container {
+                margin: 0 12px;
+                padding: 20px;
+                border-radius: 12px;
+            }
+
+            h1 {
+                font-size: 22px;
+                margin-bottom: 20px;
+            }
+
+            .tabs {
+                margin-bottom: 20px;
+            }
+
+            .tab {
+                font-size: 12px;
+                padding: 12px 6px;
+            }
+
+            .time-inputs {
+                gap: 6px;
+            }
+
+            input[type="number"] {
+                font-size: 16px;
+                padding: 12px;
+            }
+
+            .time-unit {
+                font-size: 12px;
+                min-width: 40px;
+            }
+
+            .converter-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            .converter-item {
+                padding: 12px;
+            }
+
+            .converter-value {
+                font-size: 16px;
+            }
+
+            .duration-value {
+                font-size: 24px;
+            }
+        }
+
+        /* Landscape orientation adjustments */
+        @media (max-height: 600px) and (orientation: landscape) {
+            body {
+                align-items: center;
+                padding-top: 0;
+                padding-bottom: 0;
+            }
+
+            .container {
+                margin: 0 20px;
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 20px;
+                margin-bottom: 16px;
+            }
+
+            .tabs {
+                margin-bottom: 16px;
+            }
+
+            .input-group {
+                margin-bottom: 16px;
+            }
+
+            .operator {
+                margin: 16px 0;
+            }
+        }
+
+        /* Prevent zoom on input focus on iOS */
+        @supports (-webkit-touch-callout: none) {
+            input[type="number"], input[type="time"], select {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⏱️ Time Calculator</h1>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('add')">Add/Subtract</button>
+            <button class="tab" onclick="switchTab('convert')">Convert</button>
+            <button class="tab" onclick="switchTab('difference')">Difference</button>
+        </div>
+
+        <!-- Add/Subtract Tab -->
+        <div id="add-tab" class="tab-content active">
+            <div class="input-group">
+                <label>First Time</label>
+                <div class="time-inputs">
+                    <input type="number" id="add-hours1" placeholder="0" min="0" inputmode="numeric" pattern="[0-9]*">
+                    <span class="time-unit">hours</span>
+                    <input type="number" id="add-minutes1" placeholder="0" min="0" max="59" inputmode="numeric" pattern="[0-9]*">
+                    <span class="time-unit">minutes</span>
+                    <input type="number" id="add-seconds1" placeholder="0" min="0" max="59" inputmode="numeric" pattern="[0-9]*">
+                    <span class="time-unit">seconds</span>
+                </div>
+            </div>
+
+            <div class="operator">
+                <button onclick="setOperator('+')" id="op-plus" class="active">+</button>
+                <button onclick="setOperator('-')" id="op-minus">−</button>
+            </div>
+
+            <div class="input-group">
+                <label>Second Time</label>
+                <div class="time-inputs">
+                    <input type="number" id="add-hours2" placeholder="0" min="0" inputmode="numeric" pattern="[0-9]*">
+                    <span class="time-unit">hours</span>
+                    <input type="number" id="add-minutes2" placeholder="0" min="0" max="59" inputmode="numeric" pattern="[0-9]*">
+                    <span class="time-unit">minutes</span>
+                    <input type="number" id="add-seconds2" placeholder="0" min="0" max="59" inputmode="numeric" pattern="[0-9]*">
+                    <span class="time-unit">seconds</span>
+                </div>
+            </div>
+
+            <button class="calculate-btn" onclick="calculateAddSubtract()">Calculate</button>
+
+            <div id="add-result" class="result">
+                <div class="result-label">Result</div>
+                <div class="result-value" id="add-result-value"></div>
+            </div>
+        </div>
+
+        <!-- Convert Tab -->
+        <div id="convert-tab" class="tab-content">
+            <div class="input-group">
+                <label>Enter Time</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="number" id="convert-value" placeholder="Enter value" min="0" inputmode="numeric" pattern="[0-9]*" style="flex: 1;">
+                    <select id="convert-unit">
+                        <option value="seconds">Seconds</option>
+                        <option value="minutes">Minutes</option>
+                        <option value="hours">Hours</option>
+                        <option value="days">Days</option>
+                    </select>
+                </div>
+            </div>
+
+            <button class="calculate-btn" onclick="convertTime()">Convert</button>
+
+            <div id="convert-result" class="result show">
+                <div class="converter-grid">
+                    <div class="converter-item">
+                        <div class="converter-value" id="conv-seconds">-</div>
+                        <div class="converter-unit">Seconds</div>
+                    </div>
+                    <div class="converter-item">
+                        <div class="converter-value" id="conv-minutes">-</div>
+                        <div class="converter-unit">Minutes</div>
+                    </div>
+                    <div class="converter-item">
+                        <div class="converter-value" id="conv-hours">-</div>
+                        <div class="converter-unit">Hours</div>
+                    </div>
+                    <div class="converter-item">
+                        <div class="converter-value" id="conv-days">-</div>
+                        <div class="converter-unit">Days</div>
+                    </div>
+                    <div class="converter-item">
+                        <div class="converter-value" id="conv-weeks">-</div>
+                        <div class="converter-unit">Weeks</div>
+                    </div>
+                    <div class="converter-item">
+                        <div class="converter-value" id="conv-years">-</div>
+                        <div class="converter-unit">Years</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Difference Tab -->
+        <div id="difference-tab" class="tab-content">
+            <div class="input-group">
+                <label>Calculate Time Difference</label>
+                <div class="time-difference-inputs">
+                    <div>
+                        <label style="font-size: 11px; margin-bottom: 5px;">Start Time</label>
+                        <input type="time" id="time1">
+                    </div>
+                    <div>
+                        <label style="font-size: 11px; margin-bottom: 5px;">End Time</label>
+                        <input type="time" id="time2">
+                    </div>
+                </div>
+            </div>
+
+            <button class="calculate-btn" onclick="calculateDifference()">Calculate Difference</button>
+
+            <div id="diff-result" class="result">
+                <div class="duration-result">
+                    <div class="duration-item">
+                        <div class="duration-value" id="diff-hours">0</div>
+                        <div class="duration-label">Hours</div>
+                    </div>
+                    <div class="duration-item">
+                        <div class="duration-value" id="diff-minutes">0</div>
+                        <div class="duration-label">Minutes</div>
+                    </div>
+                    <div class="duration-item">
+                        <div class="duration-value" id="diff-seconds">0</div>
+                        <div class="duration-label">Seconds</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentOperator = '+';
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+        }
+
+        function setOperator(op) {
+            currentOperator = op;
+            document.getElementById('op-plus').classList.toggle('active', op === '+');
+            document.getElementById('op-minus').classList.toggle('active', op === '-');
+        }
+
+        function calculateAddSubtract() {
+            const h1 = parseInt(document.getElementById('add-hours1').value) || 0;
+            const m1 = parseInt(document.getElementById('add-minutes1').value) || 0;
+            const s1 = parseInt(document.getElementById('add-seconds1').value) || 0;
+            
+            const h2 = parseInt(document.getElementById('add-hours2').value) || 0;
+            const m2 = parseInt(document.getElementById('add-minutes2').value) || 0;
+            const s2 = parseInt(document.getElementById('add-seconds2').value) || 0;
+            
+            let totalSeconds1 = h1 * 3600 + m1 * 60 + s1;
+            let totalSeconds2 = h2 * 3600 + m2 * 60 + s2;
+            
+            let resultSeconds;
+            if (currentOperator === '+') {
+                resultSeconds = totalSeconds1 + totalSeconds2;
+            } else {
+                resultSeconds = Math.abs(totalSeconds1 - totalSeconds2);
+            }
+            
+            const hours = Math.floor(resultSeconds / 3600);
+            const minutes = Math.floor((resultSeconds % 3600) / 60);
+            const seconds = resultSeconds % 60;
+            
+            const resultText = `${hours}h ${minutes}m ${seconds}s`;
+            document.getElementById('add-result-value').textContent = resultText;
+            document.getElementById('add-result').classList.add('show');
+        }
+
+        function convertTime() {
+            const value = parseFloat(document.getElementById('convert-value').value) || 0;
+            const unit = document.getElementById('convert-unit').value;
+            
+            let seconds;
+            switch(unit) {
+                case 'seconds': seconds = value; break;
+                case 'minutes': seconds = value * 60; break;
+                case 'hours': seconds = value * 3600; break;
+                case 'days': seconds = value * 86400; break;
+            }
+            
+            document.getElementById('conv-seconds').textContent = seconds.toFixed(0);
+            document.getElementById('conv-minutes').textContent = (seconds / 60).toFixed(2);
+            document.getElementById('conv-hours').textContent = (seconds / 3600).toFixed(2);
+            document.getElementById('conv-days').textContent = (seconds / 86400).toFixed(2);
+            document.getElementById('conv-weeks').textContent = (seconds / 604800).toFixed(2);
+            document.getElementById('conv-years').textContent = (seconds / 31536000).toFixed(2);
+        }
+
+        function calculateDifference() {
+            const time1 = document.getElementById('time1').value;
+            const time2 = document.getElementById('time2').value;
+            
+            if (!time1 || !time2) {
+                return;
+            }
+            
+            const [h1, m1] = time1.split(':').map(Number);
+            const [h2, m2] = time2.split(':').map(Number);
+            
+            let totalSeconds1 = h1 * 3600 + m1 * 60;
+            let totalSeconds2 = h2 * 3600 + m2 * 60;
+            
+            let diff = Math.abs(totalSeconds2 - totalSeconds1);
+            
+            const hours = Math.floor(diff / 3600);
+            const minutes = Math.floor((diff % 3600) / 60);
+            const seconds = diff % 60;
+            
+            document.getElementById('diff-hours').textContent = hours;
+            document.getElementById('diff-minutes').textContent = minutes;
+            document.getElementById('diff-seconds').textContent = seconds;
+            document.getElementById('diff-result').classList.add('show');
+        }
+
+        // Add haptic feedback for mobile (if supported)
+        function vibrate() {
+            if ('vibrate' in navigator) {
+                navigator.vibrate(10);
+            }
+        }
+
+        // Add vibration to button clicks
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('click', vibrate);
+        });
+
+        // Handle enter key for inputs
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    const activeTab = document.querySelector('.tab-content.active').id;
+                    if (activeTab === 'add-tab') calculateAddSubtract();
+                    else if (activeTab === 'convert-tab') convertTime();
+                    else if (activeTab === 'difference-tab') calculateDifference();
+                }
+            });
+        });
+
+        // Prevent scrolling when touching the calculator
+        document.addEventListener('touchmove', function(e) {
+            if (e.target.closest('.container')) {
+                e.stopPropagation();
+            }
+        }, { passive: false });
+    </script>
+</body>
+</html>
